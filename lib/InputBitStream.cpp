@@ -7,7 +7,7 @@ InputBitStream::InputBitStream(std::istream& in) : in_(in) { }
 unsigned short InputBitStream::ReadBits(size_t n) {
     unsigned short bits = 0;
 
-    while (n) {
+    for (size_t i = 0; i < n; ++i) {
         if (buffer_pos_ == CHAR_BIT) {
             if (in_ >> buffer_) {
                 buffer_pos_ = 0;
@@ -15,11 +15,15 @@ unsigned short InputBitStream::ReadBits(size_t n) {
                 break;
             }
         }
-        bool bit = (buffer_ >> (CHAR_BIT - buffer_pos_ - 1)) & 1;
-        bits |= (bit << (n - 1));
+        bool bit = (buffer_ >> (buffer_pos_)) & 1;
+        bits <<= 1;
+        bits |= bit;
         ++buffer_pos_;
-        --n;
     }
 
     return bits;
+}
+
+bool InputBitStream::good() {
+    return buffer_pos_ != CHAR_BIT || in_.peek() != EOF;
 }

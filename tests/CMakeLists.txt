@@ -9,5 +9,5 @@ include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 
 find_library(ArchiverLibrary ../lib)
 
-add_executable(Run_tests InputBitStreamTests.cpp)
+add_executable(Run_tests InputBitStreamTests.cpp FrequencyListTests.cpp)
 target_link_libraries(Run_tests ArchiverLibrary gtest gtest_main)
