@@ -19,4 +19,16 @@ FrequencyList GetFrequencyList(const std::string& filename,
                                const std::vector<ControlCharacters>& additional_characters);
 
 BinaryTree* GetBinaryTree(const FrequencyList& frequency_list);
+
+struct CodeWord {
+    unsigned short symbol = 0;
+    size_t bit_count = 0;
+
+    bool operator==(const CodeWord& other) const {
+        return symbol == other.symbol && bit_count == other.bit_count;
+    }
+};
+using Codebook = std::vector<CodeWord>;
+
+Codebook GetCodebook(const BinaryTree* tree_root);
 }  // namespace Archiver

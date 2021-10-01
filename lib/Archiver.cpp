@@ -75,3 +75,30 @@ BinaryTree* Archiver::GetBinaryTree(const FrequencyList& frequency_list) {
     return priority_queue.top().node;
 }
 
+Codebook Archiver::GetCodebook(const BinaryTree* tree_root) {
+    if (!tree_root) {
+        return {};
+    }
+
+    Codebook codebook;
+    struct WalkData {
+        size_t depth;
+        const BinaryTree* node;
+    };
+    std::queue<WalkData> queue;
+    queue.push({.depth = (tree_root->GetValue() != BinaryTree::NO_VALUE), .node = tree_root});
+    while (!queue.empty()) {
+        auto [depth, cur_node] = queue.front();
+        queue.pop();
+        if (auto value = cur_node->GetValue(); value != BinaryTree::NO_VALUE) {
+            codebook.push_back({.symbol = value, .bit_count = depth});
+        }
+        if (auto left_son = cur_node->GetLeftSon(); left_son) {
+            queue.push({.depth = depth + 1, .node = left_son});
+        }
+        if (auto right_son = cur_node->GetRightSon(); right_son) {
+            queue.push({.depth = depth + 1, .node = right_son});
+        }
+    }
+    return codebook;
+}

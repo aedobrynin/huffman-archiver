@@ -1,9 +1,13 @@
 #pragma once
 
+#include <limits>
+
 namespace Archiver {
 class BinaryTree {
 public:
-    explicit BinaryTree(unsigned short value = 0);
+    static const unsigned short NO_VALUE = std::numeric_limits<unsigned short>::max();
+
+    explicit BinaryTree(unsigned short value = NO_VALUE);
     BinaryTree(const BinaryTree& other) = delete;
     BinaryTree& operator=(const BinaryTree& other) = delete;
 
