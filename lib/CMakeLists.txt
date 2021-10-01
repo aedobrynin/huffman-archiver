@@ -7,6 +7,8 @@ set(SRCS
     InputBitStream.cpp
     Archiver.hpp
     Archiver.cpp
+    BinaryTree.hpp
+    BinaryTree.cpp
 )
 
 add_library(ArchiverLibrary STATIC ${SRCS})

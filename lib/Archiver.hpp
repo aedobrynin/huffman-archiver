@@ -3,6 +3,7 @@
 #include <array>
 #include <vector>
 
+#include "BinaryTree.hpp"
 #include "InputBitStream.hpp"
 
 namespace Archiver {
@@ -12,8 +13,10 @@ enum class ControlCharacters {
     ARCHIVE_END = 258
 };
 
-using FrequencyList = std::array<uint64_t, 1 << 9>;
+using FrequencyList = std::array<size_t, 1 << 9>;
 FrequencyList GetFrequencyList(const std::string& filename,
                                InputBitStream& ibitstream,
                                const std::vector<ControlCharacters>& additional_characters);
+
+BinaryTree* GetBinaryTree(const FrequencyList& frequency_list);
 }  // namespace Archiver
