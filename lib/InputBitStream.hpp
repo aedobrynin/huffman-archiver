@@ -11,6 +11,7 @@ public:
     InputBitStream& operator=(const InputBitStream& rhs) = delete;
     unsigned short ReadBits(size_t n);
     bool good();
+
 private:
     std::istream& in_;
     unsigned char buffer_;

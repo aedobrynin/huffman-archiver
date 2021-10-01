@@ -71,7 +71,8 @@ TEST(CodebookTests, CorrectGetCanonicalCodebook) {
 
     {
         Codebook codebook{{.character = 10, .code = {0}}};
-        CanonicalCodebook expected{{1}, {10}};
+        CanonicalCodebook expected{.word_count_by_bit_count = {1},
+                                   .characters = {10}};
         tests.push_back({.codebook = codebook, .expected = expected});
     }
 
@@ -80,8 +81,8 @@ TEST(CodebookTests, CorrectGetCanonicalCodebook) {
                           {.character = 0, .code = {1, 0}},
                           {.character = 1, .code = {1, 1, 0}},
                           {.character = 2, .code = {1, 1, 1}}};
-        CanonicalCodebook expected{{1, 1, 2},
-                                    {256, 0, 1, 2}};
+        CanonicalCodebook expected{.word_count_by_bit_count = {1, 1, 2},
+                                   .characters = {256, 0, 1, 2}};
         tests.push_back({.codebook = codebook, .expected = expected});
     }
 

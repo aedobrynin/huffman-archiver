@@ -29,8 +29,7 @@ void Archiver::CompressFile(const std::string& filename, InputBitStream& in, Out
     auto canonical_codebook = GetCanonicalCodebook(codebook);
 }
 
-FrequencyList Archiver::GetFrequencyList(const std::string& filename,
-                                         InputBitStream& ibitstream,
+FrequencyList Archiver::GetFrequencyList(const std::string& filename, InputBitStream& ibitstream,
                                          const std::vector<ControlCharacters>& additional_characters) {
     FrequencyList frequency_list;
     frequency_list.fill(0);
@@ -70,7 +69,7 @@ BinaryTree* Archiver::GetBinaryTree(const FrequencyList& frequency_list) {
     };
 
     std::priority_queue<CharacterData, std::vector<CharacterData>, decltype(IsCharacterDataGreaterByOccurance)>
-            priority_queue(IsCharacterDataGreaterByOccurance);
+        priority_queue(IsCharacterDataGreaterByOccurance);
 
     for (size_t i = 0; i < frequency_list.size(); ++i) {
         if (frequency_list[i] == 0) {
@@ -143,7 +142,7 @@ CanonicalCodebook Archiver::GetCanonicalCodebook(Codebook codebook) {
 
     auto max_bit_count = codebook.back().code.size();
     CanonicalCodebook canonical_codebook{.word_count_by_bit_count = std::vector<size_t>(max_bit_count),
-                                           .characters = std::vector<unsigned short>(codebook.size())};
+                                         .characters = std::vector<unsigned short>(codebook.size())};
     for (size_t i = 0; i < codebook.size(); ++i) {
         canonical_codebook.characters[i] = codebook[i].character;
         ++canonical_codebook.word_count_by_bit_count[codebook[i].code.size() - 1];
