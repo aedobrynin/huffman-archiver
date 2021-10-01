@@ -70,7 +70,7 @@ TEST(CodebookTests, CorrectGetCannonicalCodebook) {
 
     {
         Codebook codebook{{.character = 10, .code = {0}}};
-        CannonicalCodebook expected{{0, 1}, {10}};
+        CannonicalCodebook expected{{1}, {10}};
         tests.push_back({.codebook = codebook, .expected = expected});
     }
 
@@ -82,5 +82,9 @@ TEST(CodebookTests, CorrectGetCannonicalCodebook) {
         CannonicalCodebook expected{{1, 1, 2},
                                     {256, 0, 1, 2}};
         tests.push_back({.codebook = codebook, .expected = expected});
+    }
+
+    for (const auto& test : tests) {
+        ASSERT_EQ(GetCannonicalCodebook(test.codebook), test.expected);
     }
 }

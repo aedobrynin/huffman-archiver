@@ -35,6 +35,11 @@ Codebook GetCodebook(const BinaryTree* tree_root);
 struct CannonicalCodebook {
     std::vector<size_t> word_count_by_bit_count;
     std::vector<unsigned short> characters;
+
+    bool operator==(const CannonicalCodebook& other) const {
+        return word_count_by_bit_count == other.word_count_by_bit_count
+            && characters == other.characters;
+    }
 };
 CannonicalCodebook GetCannonicalCodebook(Codebook regular_codebook);
 }  // namespace Archiver
