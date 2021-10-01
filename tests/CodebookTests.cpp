@@ -46,7 +46,8 @@ TEST(CodebookTests, CorrectGetCodebook) {
     for (auto& test : tests) {
         // We do not care about order of elements in the codebook.
         auto IsCodeWordLess = [](const CodeWord& a, const CodeWord& b) {
-            return std::forward_as_tuple(a.character, a.code.size()) < std::forward_as_tuple(b.character, b.code.size());
+            return std::forward_as_tuple(a.character, a.code.size())
+                 < std::forward_as_tuple(b.character, b.code.size());
         };
         std::sort(test.expected.begin(), test.expected.end(), IsCodeWordLess);
         auto result = GetCodebook(test.tree.get());
@@ -55,22 +56,22 @@ TEST(CodebookTests, CorrectGetCodebook) {
     }
 }
 
-TEST(CodebookTests, CorrectGetCannonicalCodebook) {
+TEST(CodebookTests, CorrectGetCanonicalCodebook) {
     struct TestData {
         Codebook codebook;
-        CannonicalCodebook expected;
+        CanonicalCodebook expected;
     };
     std::vector<TestData> tests;
 
     {
         Codebook codebook{};
-        CannonicalCodebook expected{};
+        CanonicalCodebook expected{};
         tests.push_back({.codebook = codebook, .expected = expected});
     }
 
     {
         Codebook codebook{{.character = 10, .code = {0}}};
-        CannonicalCodebook expected{{1}, {10}};
+        CanonicalCodebook expected{{1}, {10}};
         tests.push_back({.codebook = codebook, .expected = expected});
     }
 
@@ -79,12 +80,12 @@ TEST(CodebookTests, CorrectGetCannonicalCodebook) {
                           {.character = 0, .code = {1, 0}},
                           {.character = 1, .code = {1, 1, 0}},
                           {.character = 2, .code = {1, 1, 1}}};
-        CannonicalCodebook expected{{1, 1, 2},
+        CanonicalCodebook expected{{1, 1, 2},
                                     {256, 0, 1, 2}};
         tests.push_back({.codebook = codebook, .expected = expected});
     }
 
     for (const auto& test : tests) {
-        ASSERT_EQ(GetCannonicalCodebook(test.codebook), test.expected);
+        ASSERT_EQ(GetCanonicalCodebook(test.codebook), test.expected);
     }
 }

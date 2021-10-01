@@ -5,6 +5,7 @@
 
 #include "BinaryTree.hpp"
 #include "InputBitStream.hpp"
+#include "OutputBitStream.hpp"
 
 namespace Archiver {
 enum class ControlCharacters {
@@ -12,6 +13,9 @@ enum class ControlCharacters {
     ONE_MORE_FILE = 257,
     ARCHIVE_END = 258
 };
+
+void Compress(const std::string& archive_name, const std::vector<std::string>& files_to_archive);
+void CompressFile(const std::string& file_name, InputBitStream& in, OutputBitStream& out, bool is_last);
 
 using FrequencyList = std::array<size_t, 1 << 9>;
 FrequencyList GetFrequencyList(const std::string& filename,
@@ -32,14 +36,14 @@ struct CodeWord {
 using Codebook = std::vector<CodeWord>;
 Codebook GetCodebook(const BinaryTree* tree_root);
 
-struct CannonicalCodebook {
+struct CanonicalCodebook {
     std::vector<size_t> word_count_by_bit_count;
     std::vector<unsigned short> characters;
 
-    bool operator==(const CannonicalCodebook& other) const {
+    bool operator==(const CanonicalCodebook& other) const {
         return word_count_by_bit_count == other.word_count_by_bit_count
             && characters == other.characters;
     }
 };
-CannonicalCodebook GetCannonicalCodebook(Codebook regular_codebook);
+CanonicalCodebook GetCanonicalCodebook(Codebook regular_codebook);
 }  // namespace Archiver

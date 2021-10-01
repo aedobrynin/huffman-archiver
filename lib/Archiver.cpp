@@ -1,10 +1,33 @@
 #include "Archiver.hpp"
 
+#include <fstream>
 #include <functional>
 #include <queue>
 #include <sstream>
 
 using namespace Archiver;
+
+void Archiver::Compress(const std::string& archive_name, const std::vector<std::string>& files_to_archive) {
+    std::ofstream fout(archive_name);
+    OutputBitStream obitstream(fout);
+    for (size_t i = 0; i < files_to_archive.size(); ++i) {
+        std::ifstream fin(files_to_archive[i]);
+        InputBitStream ibitstream(fin);
+        CompressFile(files_to_archive[i], ibitstream, obitstream, i + 1 == files_to_archive.size());
+    }
+}
+
+void Archiver::CompressFile(const std::string& filename, InputBitStream& in, OutputBitStream& out, bool is_last) {
+    std::vector<ControlCharacters> additional_characters{
+        ControlCharacters::FILENAME_END,
+        (is_last ? ControlCharacters::ARCHIVE_END : ControlCharacters::ONE_MORE_FILE),
+    };
+
+    auto frequency_list = GetFrequencyList(filename, in, additional_characters);
+    auto binary_tree = GetBinaryTree(frequency_list);
+    auto codebook = GetCodebook(binary_tree);
+    auto canonical_codebook = GetCanonicalCodebook(codebook);
+}
 
 FrequencyList Archiver::GetFrequencyList(const std::string& filename,
                                          InputBitStream& ibitstream,
@@ -86,7 +109,8 @@ Codebook Archiver::GetCodebook(const BinaryTree* tree_root) {
         const BinaryTree* node;
     };
     std::queue<WalkData> queue;
-    queue.push({.code = (tree_root->GetValue() == BinaryTree::NO_VALUE ? std::vector<bool>{} : std::vector<bool>{0}), .node = tree_root});
+    queue.push({.code = (tree_root->GetValue() == BinaryTree::NO_VALUE ? std::vector<bool>{} : std::vector<bool>{0}),
+                .node = tree_root});
     while (!queue.empty()) {
         auto [code, cur_node] = queue.front();
         queue.pop();
@@ -107,7 +131,7 @@ Codebook Archiver::GetCodebook(const BinaryTree* tree_root) {
     return codebook;
 }
 
-CannonicalCodebook Archiver::GetCannonicalCodebook(Codebook codebook) {
+CanonicalCodebook Archiver::GetCanonicalCodebook(Codebook codebook) {
     if (codebook.empty()) {
         return {};
     }
@@ -118,12 +142,12 @@ CannonicalCodebook Archiver::GetCannonicalCodebook(Codebook codebook) {
     std::sort(codebook.begin(), codebook.end(), IsLessByBitCount);
 
     auto max_bit_count = codebook.back().code.size();
-    CannonicalCodebook cannonical_codebook{.word_count_by_bit_count = std::vector<size_t>(max_bit_count),
+    CanonicalCodebook canonical_codebook{.word_count_by_bit_count = std::vector<size_t>(max_bit_count),
                                            .characters = std::vector<unsigned short>(codebook.size())};
     for (size_t i = 0; i < codebook.size(); ++i) {
-        cannonical_codebook.characters[i] = codebook[i].character;
-        ++cannonical_codebook.word_count_by_bit_count[codebook[i].code.size() - 1];
+        canonical_codebook.characters[i] = codebook[i].character;
+        ++canonical_codebook.word_count_by_bit_count[codebook[i].code.size() - 1];
     }
 
-    return cannonical_codebook;
+    return canonical_codebook;
 }
