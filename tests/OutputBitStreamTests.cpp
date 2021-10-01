@@ -25,6 +25,8 @@ TEST(OutputBitStreamTests, CorrectWriteBits) {
         tests.push_back(test_data);
     }
 
+    EXPECT_FALSE(tests.empty());
+
     for (const auto& [bits, widths, expected] : tests) {
         std::stringstream sstream;
         OutputBitStream obitstream(sstream);

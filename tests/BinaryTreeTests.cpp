@@ -67,6 +67,8 @@ TEST(BinaryTreeTests, CorrectGetBinaryTree) {
         tests.push_back({.frequency_list = frequency_list, .expected = std::move(tree_root)});
     }
 
+    EXPECT_FALSE(tests.empty());
+
     for (const auto& test : tests) {
         std::unique_ptr<BinaryTree> result(GetBinaryTree(test.frequency_list));
         ASSERT_TRUE(AreTwoTreesEqual(test.expected.get(), result.get()));
