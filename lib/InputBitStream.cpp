@@ -9,15 +9,17 @@ unsigned short InputBitStream::ReadBits(size_t n) {
 
     for (size_t i = 0; i < n; ++i) {
         if (buffer_pos_ == CHAR_BIT) {
-            if (in_ >> buffer_) {
+            if (in_.peek() != EOF) {
+                char tmp;
+                in_.read(&tmp, 1);
+                buffer_ = static_cast<unsigned char>(tmp);
                 buffer_pos_ = 0;
             } else {
                 break;
             }
         }
         bool bit = (buffer_ >> (buffer_pos_)) & 1;
-        bits <<= 1;
-        bits |= bit;
+        bits |= bit << (n - i - 1);
         ++buffer_pos_;
     }
 

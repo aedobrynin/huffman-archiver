@@ -85,7 +85,7 @@ TEST(CodebookTests, CorrectGetCanonicalCodebook) {
         tests.push_back({.codebook = codebook, .expected = expected});
     }
 
-    EXPECT_FALSE(tests.empty());
+    ASSERT_FALSE(tests.empty());
 
     for (const auto& test : tests) {
         ASSERT_EQ(GetCanonicalCodebook(test.codebook), test.expected);

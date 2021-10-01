@@ -20,7 +20,7 @@ TEST(InputBitStreamTests, CorrectReadBits) {
     }
 
     std::vector<size_t> lengths{1, 3, 5, 7, 4, 8, 16, 4, 16};
-    EXPECT_EQ(std::accumulate(lengths.begin(), lengths.end(), 0), sstream.str().size() * CHAR_BIT);
+    ASSERT_EQ(std::accumulate(lengths.begin(), lengths.end(), 0), sstream.str().size() * CHAR_BIT);
     size_t already_read_count = 0;
     for (size_t bit_count : lengths) {
         auto bits = ibitstream.ReadBits(bit_count);

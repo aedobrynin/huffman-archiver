@@ -12,6 +12,7 @@ find_library(ArchiverLibrary ../lib)
 add_executable(Run_tests
                InputBitStreamTests.cpp
                OutputBitStreamTests.cpp
+               InputOutputBitStreamIntegrationTests.cpp
                FrequencyListTests.cpp
                BinaryTreeTests.cpp
                CodebookTests.cpp
