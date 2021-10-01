@@ -21,7 +21,7 @@ TEST(CodebookTests, CorrectGetCodebook) {
 
     {
         auto tree_root = std::make_unique<BinaryTree>(10);
-        Codebook codebook{{.symbol = 10, .bit_count = 1}};
+        Codebook codebook{{.character = 10, .code = {0}}};
         tests.push_back({.tree = std::move(tree_root), .expected = codebook});
     }
 
@@ -36,17 +36,17 @@ TEST(CodebookTests, CorrectGetCodebook) {
         right_right_son->SetLeftSon(new BinaryTree(1));
         right_right_son->SetRightSon(new BinaryTree(2));
 
-        Codebook codebook{{.symbol = 256, .bit_count = 1},
-                          {.symbol = 0, .bit_count = 2},
-                          {.symbol = 1, .bit_count = 3},
-                          {.symbol = 2, .bit_count = 3}};
+        Codebook codebook{{.character = 256, .code = {0}},
+                          {.character = 0, .code = {1, 0}},
+                          {.character = 1, .code = {1, 1, 0}},
+                          {.character = 2, .code = {1, 1, 1}}};
         tests.push_back({.tree = std::move(tree_root), .expected = codebook});
     }
 
     for (auto& test : tests) {
         // We do not care about order of elements in the codebook.
         auto IsCodeWordLess = [](const CodeWord& a, const CodeWord& b) {
-            return std::tie(a.symbol, a.bit_count) < std::tie(b.symbol, b.bit_count);
+            return std::forward_as_tuple(a.character, a.code.size()) < std::forward_as_tuple(b.character, b.code.size());
         };
         std::sort(test.expected.begin(), test.expected.end(), IsCodeWordLess);
         auto result = GetCodebook(test.tree.get());
@@ -55,3 +55,32 @@ TEST(CodebookTests, CorrectGetCodebook) {
     }
 }
 
+TEST(CodebookTests, CorrectGetCannonicalCodebook) {
+    struct TestData {
+        Codebook codebook;
+        CannonicalCodebook expected;
+    };
+    std::vector<TestData> tests;
+
+    {
+        Codebook codebook{};
+        CannonicalCodebook expected{};
+        tests.push_back({.codebook = codebook, .expected = expected});
+    }
+
+    {
+        Codebook codebook{{.character = 10, .code = {0}}};
+        CannonicalCodebook expected{{0, 1}, {10}};
+        tests.push_back({.codebook = codebook, .expected = expected});
+    }
+
+    {
+        Codebook codebook{{.character = 256, .code = {0}},
+                          {.character = 0, .code = {1, 0}},
+                          {.character = 1, .code = {1, 1, 0}},
+                          {.character = 2, .code = {1, 1, 1}}};
+        CannonicalCodebook expected{{1, 1, 2},
+                                    {256, 0, 1, 2}};
+        tests.push_back({.codebook = codebook, .expected = expected});
+    }
+}

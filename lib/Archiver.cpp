@@ -82,23 +82,48 @@ Codebook Archiver::GetCodebook(const BinaryTree* tree_root) {
 
     Codebook codebook;
     struct WalkData {
-        size_t depth;
+        std::vector<bool> code;
         const BinaryTree* node;
     };
     std::queue<WalkData> queue;
-    queue.push({.depth = (tree_root->GetValue() != BinaryTree::NO_VALUE), .node = tree_root});
+    queue.push({.code = (tree_root->GetValue() == BinaryTree::NO_VALUE ? std::vector<bool>{} : std::vector<bool>{0}), .node = tree_root});
     while (!queue.empty()) {
-        auto [depth, cur_node] = queue.front();
+        auto [code, cur_node] = queue.front();
         queue.pop();
-        if (auto value = cur_node->GetValue(); value != BinaryTree::NO_VALUE) {
-            codebook.push_back({.symbol = value, .bit_count = depth});
-        }
         if (auto left_son = cur_node->GetLeftSon(); left_son) {
-            queue.push({.depth = depth + 1, .node = left_son});
+            code.push_back(0);
+            queue.push({.code = code, .node = left_son});
+            code.pop_back();
         }
         if (auto right_son = cur_node->GetRightSon(); right_son) {
-            queue.push({.depth = depth + 1, .node = right_son});
+            code.push_back(1);
+            queue.push({.code = code, .node = right_son});
+            code.pop_back();
+        }
+        if (auto value = cur_node->GetValue(); value != BinaryTree::NO_VALUE) {
+            codebook.push_back({.character = value, .code = std::move(code)});
         }
     }
     return codebook;
+}
+
+CannonicalCodebook Archiver::GetCannonicalCodebook(Codebook codebook) {
+    if (codebook.empty()) {
+        return {};
+    }
+
+    auto IsLessByBitCount = [](const CodeWord& a, const CodeWord& b) {
+        return a.code.size() < b.code.size();
+    };
+    std::sort(codebook.begin(), codebook.end(), IsLessByBitCount);
+
+    auto max_bit_count = codebook.back().code.size();
+    CannonicalCodebook cannonical_codebook{.word_count_by_bit_count = std::vector<size_t>(max_bit_count),
+                                           .characters = std::vector<unsigned short>(codebook.size())};
+    for (size_t i = 0; i < codebook.size(); ++i) {
+        cannonical_codebook.characters[i] = codebook[i].character;
+        ++cannonical_codebook.word_count_by_bit_count[codebook[i].code.size() - 1];
+    }
+
+    return cannonical_codebook;
 }
