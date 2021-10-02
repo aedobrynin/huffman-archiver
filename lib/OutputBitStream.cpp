@@ -8,7 +8,17 @@ OutputBitStream::OutputBitStream(std::ostream& out) : out_(out) { }
 
 void OutputBitStream::WriteBits(unsigned short bits, size_t width) {
     for (size_t i = 0; i < width; ++i) {
-        buffer_ |= ((bits >> (width - i - 1) & 1) << buffer_pos_);
+        buffer_ |= (bits >> (width - i - 1) & 1) << buffer_pos_;
+        ++buffer_pos_;
+        if (buffer_pos_ == CHAR_BIT) {
+            Flush();
+        }
+    }
+}
+
+void OutputBitStream::WriteBits(const std::vector<bool>& bits) {
+    for (size_t i = 0; i < bits.size(); ++i) {
+        buffer_ |= bits[i] << buffer_pos_;
         ++buffer_pos_;
         if (buffer_pos_ == CHAR_BIT) {
             Flush();

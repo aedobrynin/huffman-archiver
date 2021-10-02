@@ -4,6 +4,7 @@
 #include <functional>
 #include <queue>
 #include <sstream>
+#include <vector>
 
 using namespace Archiver;
 
@@ -22,11 +23,29 @@ void Archiver::CompressFile(const std::string& filename, InputBitStream& in, Out
         ControlCharacters::FILENAME_END,
         (is_last ? ControlCharacters::ARCHIVE_END : ControlCharacters::ONE_MORE_FILE),
     };
-
     auto frequency_list = GetFrequencyList(filename, in, additional_characters);
+
     auto binary_tree = GetBinaryTree(frequency_list);
     auto codebook = GetCodebook(binary_tree);
     auto canonical_codebook = GetCanonicalCodebook(codebook);
+    auto encoding_table = GetEncodingTable(std::move(codebook));
+
+    unsigned short character_count = encoding_table.size();
+    out.WriteBits(character_count, 9);
+
+    for (auto character : canonical_codebook.characters) {
+        out.WriteBits(character, 9);
+    }
+
+    for (auto word_count : canonical_codebook.word_count_by_bit_count) {
+        out.WriteBits(word_count, 9);
+    }
+
+    std::stringstream sstream_filename(filename);
+    InputBitStream ibitstream_filename(sstream_filename);
+    Encode(ibitstream_filename, encoding_table, out, ControlCharacters::FILENAME_END);
+
+    Encode(in, encoding_table, out, (is_last ? ControlCharacters::ARCHIVE_END : ControlCharacters::ONE_MORE_FILE));
 }
 
 FrequencyList Archiver::GetFrequencyList(const std::string& filename, InputBitStream& ibitstream,
@@ -47,12 +66,7 @@ FrequencyList Archiver::GetFrequencyList(const std::string& filename, InputBitSt
     }
 
     for (auto additional_character : additional_characters) {
-        unsigned short character = 0;
-        for (size_t i = 0; i < 9; ++i) {
-            character <<= 1;
-            character |= (static_cast<unsigned short>(additional_character) >> i) & 1;
-        }
-        ++frequency_list[character];
+        ++frequency_list[static_cast<unsigned short>(additional_character)];
     }
 
     return frequency_list;
@@ -149,4 +163,21 @@ CanonicalCodebook Archiver::GetCanonicalCodebook(Codebook codebook) {
     }
 
     return canonical_codebook;
+}
+
+EncodingTable Archiver::GetEncodingTable(Codebook codebook) {
+    EncodingTable encoding_table;
+    for (auto& code_word : codebook) {
+        encoding_table[code_word.character] = std::move(code_word.code);
+    }
+    return encoding_table;
+}
+
+void Archiver::Encode(InputBitStream& in, const EncodingTable& encoding_table,
+                      OutputBitStream& out, ControlCharacters last_character) {
+    while (in.good()) {
+        auto character = in.ReadBits(8);
+        out.WriteBits(encoding_table.at(character));
+    }
+    out.WriteBits(encoding_table.at(static_cast<unsigned short>(last_character)));
 }

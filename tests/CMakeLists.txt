@@ -16,5 +16,6 @@ add_executable(Run_tests
                FrequencyListTests.cpp
                BinaryTreeTests.cpp
                CodebookTests.cpp
+               EncodeTests.cpp
                )
 target_link_libraries(Run_tests ArchiverLibrary gtest gtest_main)

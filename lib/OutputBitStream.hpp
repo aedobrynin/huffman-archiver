@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ostream>
+#include <vector>
 
 namespace Archiver {
 class OutputBitStream {
@@ -10,6 +11,7 @@ public:
     OutputBitStream& operator=(const OutputBitStream& rhs) = delete;
 
     void WriteBits(unsigned short bits, size_t width);
+    void WriteBits(const std::vector<bool>& bits);
     void Flush();
 
     ~OutputBitStream();
