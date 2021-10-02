@@ -1,4 +1,4 @@
-#include "Archiver.hpp"
+#include "Compress.hpp"
 
 #include <fstream>
 #include <functional>

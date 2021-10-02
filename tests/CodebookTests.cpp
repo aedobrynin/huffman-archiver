@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "Archiver.hpp"
+#include "Compress.hpp"
 
 using namespace Archiver;
 

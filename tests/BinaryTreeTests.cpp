@@ -4,8 +4,8 @@
 #include <memory>
 #include <vector>
 
-#include "Archiver.hpp"
 #include "BinaryTree.hpp"
+#include "Compress.hpp"
 
 using namespace Archiver;
 

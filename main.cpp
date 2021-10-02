@@ -3,7 +3,7 @@
 #include <iostream>
 #include <vector>
 
-#include "Archiver.hpp"
+#include "Compress.hpp"
 
 const char* help_message =
     "Compress/decompress files using Huffman coding.\n"
