@@ -1,5 +1,4 @@
 run-clang-format.py
-googletest
 *.swp
 build
 README.md
