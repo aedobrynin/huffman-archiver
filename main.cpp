@@ -3,12 +3,12 @@
 #include <iostream>
 #include <vector>
 
-/*
 #include "Archiver.hpp"
-*/
-const char* help_message = "Compress/decompress files using Huffman coding.\n"
-                           "To compress: \"archiver -c archive_name file1 [file2 ...]\".\n"
-                           "To decompress: \"archiver -d archive_name\".\n";
+
+const char* help_message =
+    "Compress/decompress files using Huffman coding.\n"
+    "To compress: \"archiver -c archive_name file1 [file2 ...]\".\n"
+    "To decompress: \"archiver -d archive_name\".\n";
 
 bool FileExists(const std::string& path) {
     return std::filesystem::exists(path);
@@ -39,6 +39,7 @@ int main(int argc, char* argv[]) {
             std::cout << "Provide at least one file to archive.\n";
             return 1;
         }
+        Archiver::Compress(archive_name, files_to_archive);
         return 0;
     }
     if (std::strcmp(argv[1], "-d") == 0) {
