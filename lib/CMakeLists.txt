@@ -3,6 +3,7 @@ project(ArchiverLib)
 SET(CMAKE_CXX_STANDARD 20)
 
 set(SRCS
+    InternalStructures.hpp
     InputBitStream.hpp
     InputBitStream.cpp
     OutputBitStream.hpp
