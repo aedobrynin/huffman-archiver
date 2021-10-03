@@ -6,6 +6,7 @@
 #include <memory>
 #include <queue>
 #include <sstream>
+#include <tuple>
 #include <vector>
 
 #include "Exceptions.hpp"
@@ -37,17 +38,18 @@ void Archiver::CompressFile(const std::string& filename, InputBitStream& in, Out
 
     std::unique_ptr<BinaryTree> binary_tree{GetBinaryTree(frequency_list)};
     auto codebook = GetCodebook(binary_tree.get());
-    auto canonical_codebook = GetCanonicalCodebook(codebook);
+    CanonizeCodebook(codebook);
+    auto codebook_data = GetCodebookData(codebook);
     auto encoding_table = GetEncodingTable(std::move(codebook));
 
     unsigned short character_count = static_cast<unsigned short>(encoding_table.size());
     out.WriteBits(character_count, 9);
 
-    for (auto character : canonical_codebook.characters) {
+    for (auto character : codebook_data.characters) {
         out.WriteBits(character, 9);
     }
 
-    for (auto word_count : canonical_codebook.word_count_by_bit_count) {
+    for (auto word_count : codebook_data.word_count_by_bit_count) {
         out.WriteBits(static_cast<unsigned short>(word_count), 9);
     }
 
@@ -55,6 +57,7 @@ void Archiver::CompressFile(const std::string& filename, InputBitStream& in, Out
     InputBitStream ibitstream_filename(sstream_filename);
     Encode(ibitstream_filename, encoding_table, out, ControlCharacters::FILENAME_END);
 
+    in.Reset();
     Encode(in, encoding_table, out, (is_last ? ControlCharacters::ARCHIVE_END : ControlCharacters::ONE_MORE_FILE));
 }
 
@@ -127,7 +130,6 @@ BinaryTree* Archiver::GetBinaryTree(const FrequencyList& frequency_list) {
     return priority_queue.top().node;
 }
 
-#include <iostream>
 Codebook Archiver::GetCodebook(const BinaryTree* tree_root) {
     if (!tree_root) {
         return {};
@@ -158,29 +160,55 @@ Codebook Archiver::GetCodebook(const BinaryTree* tree_root) {
             codebook.push_back({.character = value, .code = std::move(code)});
         }
     }
-
     return codebook;
 }
 
-CanonicalCodebook Archiver::GetCanonicalCodebook(Codebook codebook) {
+void Archiver::CanonizeCodebook(Codebook& codebook) {
+    std::sort(codebook.begin(), codebook.end(), [](const CodeWord& a, const CodeWord& b) {
+        return std::forward_as_tuple(a.code.size(), a.character)
+             < std::forward_as_tuple(b.code.size(), b.character);
+    });
+
+    std::fill(codebook[0].code.begin(), codebook[0].code.end(), 0);
+    for (size_t i = 1; i < codebook.size(); ++i) {
+        size_t size = codebook[i].code.size();
+
+        // effectively add 1.
+        if (std::all_of(codebook[i - 1].code.begin(), codebook[i - 1].code.end(), [](bool b) { return b; })) {
+            codebook[i].code.assign(1, 1);
+            for (size_t j = 1; j < size; ++j) {
+                codebook[i].code.push_back(0);
+            }
+        } else {
+            codebook[i].code = codebook[i - 1].code;
+            auto it = codebook[i].code.rbegin();
+            while (it != codebook[i].code.rend() && *it == 1) {
+                *it = 0;
+                ++it;
+            }
+            *it = 1;
+        }
+
+        while (codebook[i].code.size() != size) {
+            codebook[i].code.push_back(0);
+        }
+    }
+}
+
+CodebookData Archiver::GetCodebookData(Codebook codebook) {
     if (codebook.empty()) {
         return {};
     }
 
-    auto IsLessByBitCount = [](const CodeWord& a, const CodeWord& b) {
-        return a.code.size() < b.code.size();
-    };
-    std::sort(codebook.begin(), codebook.end(), IsLessByBitCount);
-
     auto max_bit_count = codebook.back().code.size();
-    CanonicalCodebook canonical_codebook{.word_count_by_bit_count = std::vector<size_t>(max_bit_count),
-                                         .characters = std::vector<unsigned short>(codebook.size())};
+    CodebookData codebook_data{.word_count_by_bit_count = std::vector<size_t>(max_bit_count),
+                               .characters = std::vector<unsigned short>(codebook.size())};
     for (size_t i = 0; i < codebook.size(); ++i) {
-        canonical_codebook.characters[i] = codebook[i].character;
-        ++canonical_codebook.word_count_by_bit_count[codebook[i].code.size() - 1];
+        codebook_data.characters[i] = codebook[i].character;
+        ++codebook_data.word_count_by_bit_count[codebook[i].code.size() - 1];
     }
 
-    return canonical_codebook;
+    return codebook_data;
 }
 
 EncodingTable Archiver::GetEncodingTable(Codebook codebook) {

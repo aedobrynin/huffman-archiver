@@ -34,9 +34,10 @@ int main(int argc, char* argv[]) {
         }
         try {
             Archiver::Compress(archive_name, files_to_archive);
+            std::cout << "Successful compress\n";
             return 0;
         } catch (const Archiver::ArchiverException& e) {
-            std::cout << e.what();
+            std::cout << e.what() << '\n';
             return 1;
         }
     }
@@ -52,9 +53,10 @@ int main(int argc, char* argv[]) {
         std::string path(argv[2]);
         try {
             Archiver::Decompress(path);
+            std::cout << "Successful decompress\n";
             return 0;
         } catch (const Archiver::ArchiverException& e) {
-            std::cout << e.what();
+            std::cout << e.what() << '\n';
             return 1;
         }
     }

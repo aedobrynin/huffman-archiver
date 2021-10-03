@@ -4,6 +4,7 @@ SET(CMAKE_CXX_STANDARD 20)
 
 set(SRCS
     InternalStructures.hpp
+    InternalStructures.cpp
     InputBitStream.hpp
     InputBitStream.cpp
     OutputBitStream.hpp

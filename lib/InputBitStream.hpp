@@ -10,6 +10,7 @@ public:
     InputBitStream(const InputBitStream& other) = delete;
     InputBitStream& operator=(const InputBitStream& rhs) = delete;
     unsigned short ReadBits(size_t n);
+    void Reset();
     bool Good();
     bool IsLastReadSuccessful();
 

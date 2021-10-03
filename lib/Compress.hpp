@@ -17,8 +17,8 @@ FrequencyList GetFrequencyList(const std::string& filename,
 BinaryTree* GetBinaryTree(const FrequencyList& frequency_list);
 
 Codebook GetCodebook(const BinaryTree* tree_root);
-
-CanonicalCodebook GetCanonicalCodebook(Codebook regular_codebook);
+void CanonizeCodebook(Codebook& codebook);
+CodebookData GetCodebookData(Codebook codebook);
 
 EncodingTable GetEncodingTable(Codebook codebook);
 void Encode(InputBitStream& in, const EncodingTable& encoding_table,

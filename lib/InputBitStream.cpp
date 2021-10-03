@@ -26,6 +26,13 @@ unsigned short InputBitStream::ReadBits(size_t n) {
     return bits;
 }
 
+void InputBitStream::Reset() {
+    in_.clear();
+    in_.seekg(std::ios_base::beg);
+    buffer_pos_ = CHAR_BIT;
+    buffer_ = 0;
+}
+
 bool InputBitStream::Good() {
     return buffer_pos_ != CHAR_BIT || in_.peek() != EOF;
 }

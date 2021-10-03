@@ -1,15 +1,17 @@
 #pragma once
 
 #include <array>
+#include <deque>
 #include <unordered_map>
 #include <vector>
 
 namespace Archiver {
-enum class ControlCharacters {
+enum class ControlCharacters : unsigned short {
     FILENAME_END = 0b00000001,    // 256 in little-endian bits.
     ONE_MORE_FILE = 0b100000001,  // 257 in little-endian bits.
     ARCHIVE_END = 0b010000001,    // 258 in little-endian bits.
 };
+bool IsControlCharacter(unsigned short value);
 
 using FrequencyList = std::array<size_t, 1 << 9>;
 
@@ -24,11 +26,11 @@ struct CodeWord {
 
 using Codebook = std::vector<CodeWord>;
 
-struct CanonicalCodebook {
+struct CodebookData {
     std::vector<size_t> word_count_by_bit_count;  // shifted by one index to the left.
     std::vector<unsigned short> characters;
 
-    bool operator==(const CanonicalCodebook& other) const {
+    bool operator==(const CodebookData& other) const {
         return word_count_by_bit_count == other.word_count_by_bit_count
             && characters == other.characters;
     }
