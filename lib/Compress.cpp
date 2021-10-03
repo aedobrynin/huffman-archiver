@@ -89,24 +89,21 @@ BinaryTree* Archiver::GetBinaryTree(const FrequencyList& frequency_list) {
     struct CharacterData {
         size_t occurance_count;
         BinaryTree* node;
-        size_t id = 0;
     };
 
     auto IsCharacterDataGreaterByOccurance = [](const CharacterData& a, const CharacterData& b) {
-        return std::tie(a.occurance_count, a.id) > std::tie(b.occurance_count, b.id);
+        return a.occurance_count > b.occurance_count;
     };
 
     std::priority_queue<CharacterData, std::vector<CharacterData>, decltype(IsCharacterDataGreaterByOccurance)>
         priority_queue(IsCharacterDataGreaterByOccurance);
 
-    size_t id = 0;
     for (size_t i = 0; i < frequency_list.size(); ++i) {
         if (frequency_list[i] == 0) {
             continue;
         }
         priority_queue.push({.occurance_count = frequency_list[i],
-                             .node = new BinaryTree(static_cast<unsigned short>(i)),
-                             .id = id++});
+                             .node = new BinaryTree(static_cast<unsigned short>(i))});
     }
 
     if (priority_queue.empty()) {
@@ -123,8 +120,7 @@ BinaryTree* Archiver::GetBinaryTree(const FrequencyList& frequency_list) {
         parent->SetLeftSon(left_son.node);
         parent->SetRightSon(right_son.node);
         priority_queue.push({.occurance_count = left_son.occurance_count + right_son.occurance_count,
-                             .node = parent,
-                             .id = id++});
+                             .node = parent});
     }
 
     return priority_queue.top().node;

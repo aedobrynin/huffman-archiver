@@ -16,7 +16,7 @@ void Archiver::Decompress(const std::string& archive_name) {
     std::ifstream fin(archive_name);
     InputBitStream ibitstream(fin);
 
-    std::vector <std::string> decompressed_filenames;
+    std::vector<std::string> decompressed_filenames;
     while (ibitstream.Good()) {
         try {
             auto [filename, control_character] = DecompressFile(ibitstream);
@@ -91,7 +91,7 @@ CodebookData Archiver::DecompressCodebookData(InputBitStream& in, size_t charact
     }
     return codebook_data;
 }
-#include<iostream>
+
 std::unique_ptr<BinaryTree> Archiver::RestoreBinaryTree(const CodebookData& codebook_data) {
     std::unique_ptr<BinaryTree> binary_tree{new BinaryTree()};
 

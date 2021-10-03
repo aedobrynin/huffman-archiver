@@ -20,7 +20,6 @@ public:
     const BinaryTree* GetLeftSon() const;
     void SetLeftSon(BinaryTree* left_son);
 
-
     BinaryTree* GetRightSon();
     const BinaryTree* GetRightSon() const;
     void SetRightSon(BinaryTree* right_son);
