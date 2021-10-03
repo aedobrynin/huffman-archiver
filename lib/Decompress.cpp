@@ -26,6 +26,7 @@ void Archiver::Decompress(const std::string& archive_name) {
             }
             throw;
         }
+        break;
     }
 }
 
@@ -36,6 +37,7 @@ std::string Archiver::DecompressFile(InputBitStream& in) {
     }
 
     auto canonical_codebook = DecompressCanonicalCodebook(in, character_count);
+    return {};
 }
 
 CanonicalCodebook Archiver::DecompressCanonicalCodebook(InputBitStream& in, size_t character_count) {

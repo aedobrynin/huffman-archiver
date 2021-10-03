@@ -36,10 +36,11 @@ void Archiver::CompressFile(const std::string& filename, InputBitStream& in, Out
 
     auto binary_tree = GetBinaryTree(frequency_list);
     auto codebook = GetCodebook(binary_tree);
+    delete binary_tree;
     auto canonical_codebook = GetCanonicalCodebook(codebook);
     auto encoding_table = GetEncodingTable(std::move(codebook));
 
-    unsigned short character_count = encoding_table.size();
+    unsigned short character_count = static_cast<unsigned short>(encoding_table.size());
     out.WriteBits(character_count, 9);
 
     for (auto character : canonical_codebook.characters) {
@@ -47,7 +48,7 @@ void Archiver::CompressFile(const std::string& filename, InputBitStream& in, Out
     }
 
     for (auto word_count : canonical_codebook.word_count_by_bit_count) {
-        out.WriteBits(word_count, 9);
+        out.WriteBits(static_cast<unsigned short>(word_count), 9);
     }
 
     std::stringstream sstream_filename(filename);
@@ -98,7 +99,8 @@ BinaryTree* Archiver::GetBinaryTree(const FrequencyList& frequency_list) {
         if (frequency_list[i] == 0) {
             continue;
         }
-        priority_queue.push({.occurance_count = frequency_list[i], .node = new BinaryTree(i)});
+        priority_queue.push({.occurance_count = frequency_list[i],
+                             .node = new BinaryTree(static_cast<unsigned short>(i))});
     }
 
     if (priority_queue.empty()) {
