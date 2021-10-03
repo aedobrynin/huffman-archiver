@@ -12,6 +12,7 @@ set(SRCS
     BinaryTree.cpp
     Compress.hpp
     Compress.cpp
+    Exceptions.hpp
 )
 
 add_library(ArchiverLibrary STATIC ${SRCS})

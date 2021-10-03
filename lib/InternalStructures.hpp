@@ -1,8 +1,8 @@
 #pragma once
 
 #include <array>
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
 namespace Archiver {
 enum class ControlCharacters {

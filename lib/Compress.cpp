@@ -1,14 +1,23 @@
 #include "Compress.hpp"
 
+#include <filesystem>
 #include <fstream>
 #include <functional>
 #include <queue>
 #include <sstream>
 #include <vector>
 
+#include "Exceptions.hpp"
+
 using namespace Archiver;
 
 void Archiver::Compress(const std::string& archive_name, const std::vector<std::string>& files_to_archive) {
+    for (const auto& filename : files_to_archive) {
+        if (!std::filesystem::exists(filename)) {
+            throw FileNotFoundException(filename);
+        }
+    }
+
     std::ofstream fout(archive_name);
     OutputBitStream obitstream(fout);
     for (size_t i = 0; i < files_to_archive.size(); ++i) {

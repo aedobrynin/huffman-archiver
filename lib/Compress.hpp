@@ -6,8 +6,8 @@
 #include "OutputBitStream.hpp"
 
 namespace Archiver {
-
 void Compress(const std::string& archive_name, const std::vector<std::string>& files_to_archive);
+
 void CompressFile(const std::string& file_name, InputBitStream& in, OutputBitStream& out, bool is_last);
 
 FrequencyList GetFrequencyList(const std::string& filename,
