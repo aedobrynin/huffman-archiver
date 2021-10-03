@@ -12,6 +12,8 @@ set(SRCS
     BinaryTree.cpp
     Compress.hpp
     Compress.cpp
+    Decompress.hpp
+    Decompress.cpp
     Exceptions.hpp
 )
 

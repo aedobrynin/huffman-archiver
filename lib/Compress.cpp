@@ -64,12 +64,12 @@ FrequencyList Archiver::GetFrequencyList(const std::string& filename, InputBitSt
 
     std::stringstream filename_sstream(filename);
     InputBitStream filename_ibitstream(filename_sstream);
-    while (filename_ibitstream.good()) {
+    while (filename_ibitstream.Good()) {
         auto character = filename_ibitstream.ReadBits(8);
         ++frequency_list[character];
     }
 
-    while (ibitstream.good()) {
+    while (ibitstream.Good()) {
         auto character = ibitstream.ReadBits(8);
         ++frequency_list[character];
     }
@@ -184,7 +184,7 @@ EncodingTable Archiver::GetEncodingTable(Codebook codebook) {
 
 void Archiver::Encode(InputBitStream& in, const EncodingTable& encoding_table,
                       OutputBitStream& out, ControlCharacters last_character) {
-    while (in.good()) {
+    while (in.Good()) {
         auto character = in.ReadBits(8);
         out.WriteBits(encoding_table.at(character));
     }

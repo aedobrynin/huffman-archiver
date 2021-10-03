@@ -17,7 +17,7 @@ TEST(InputOutputBitStreamIntegrationTests, CorrectOneBitTransfer) {
     std::stringstream sstream_out;
     OutputBitStream obitstream(sstream_out);
 
-    while (ibitstream.good()) {
+    while (ibitstream.Good()) {
         auto bits = ibitstream.ReadBits(1);
         obitstream.WriteBits(bits, 1);
     }

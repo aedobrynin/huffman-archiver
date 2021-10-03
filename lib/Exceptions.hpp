@@ -14,4 +14,9 @@ public:
     FileNotFoundException(const std::string& filename)
         : ArchiverException("File with name \"" + filename + "\" doesn't exist.") { }
 };
+
+class BadFileStructureException : public ArchiverException {
+public:
+    BadFileStructureException(const std::string& what_arg) : ArchiverException(what_arg) { }
+};
 }  // namespace Archiver
