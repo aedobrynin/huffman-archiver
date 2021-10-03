@@ -10,7 +10,7 @@
 using namespace Archiver;
 
 TEST(BinaryTreeTests, CorrectGetBinaryTree) {
-    std::function<bool(BinaryTree*, BinaryTree*)> AreTwoTreesEqual;
+    std::function<bool(const BinaryTree*, const BinaryTree*)> AreTwoTreesEqual;
     AreTwoTreesEqual = [&AreTwoTreesEqual](const BinaryTree* a, const BinaryTree* b) {
         if (!a || !b) {
             return a == b;

@@ -8,7 +8,11 @@ unsigned short BinaryTree::GetValue() const {
     return value_;
 }
 
-BinaryTree* BinaryTree::GetLeftSon() const {
+BinaryTree* BinaryTree::GetLeftSon() {
+    return left_son_;
+}
+
+const BinaryTree* BinaryTree::GetLeftSon() const {
     return left_son_;
 }
 
@@ -16,7 +20,11 @@ void BinaryTree::SetLeftSon(BinaryTree* left_son) {
     left_son_ = left_son;
 }
 
-BinaryTree* BinaryTree::GetRightSon() const {
+BinaryTree* BinaryTree::GetRightSon() {
+    return right_son_;
+}
+
+const BinaryTree* BinaryTree::GetRightSon() const {
     return right_son_;
 }
 

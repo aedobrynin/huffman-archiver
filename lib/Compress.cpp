@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <fstream>
 #include <functional>
+#include <memory>
 #include <queue>
 #include <sstream>
 #include <vector>
@@ -34,9 +35,8 @@ void Archiver::CompressFile(const std::string& filename, InputBitStream& in, Out
     };
     auto frequency_list = GetFrequencyList(filename, in, additional_characters);
 
-    auto binary_tree = GetBinaryTree(frequency_list);
-    auto codebook = GetCodebook(binary_tree);
-    delete binary_tree;
+    std::unique_ptr<BinaryTree> binary_tree{GetBinaryTree(frequency_list)};
+    auto codebook = GetCodebook(binary_tree.get());
     auto canonical_codebook = GetCanonicalCodebook(codebook);
     auto encoding_table = GetEncodingTable(std::move(codebook));
 
@@ -86,21 +86,24 @@ BinaryTree* Archiver::GetBinaryTree(const FrequencyList& frequency_list) {
     struct CharacterData {
         size_t occurance_count;
         BinaryTree* node;
+        size_t id = 0;
     };
 
     auto IsCharacterDataGreaterByOccurance = [](const CharacterData& a, const CharacterData& b) {
-        return a.occurance_count > b.occurance_count;
+        return std::tie(a.occurance_count, a.id) > std::tie(b.occurance_count, b.id);
     };
 
     std::priority_queue<CharacterData, std::vector<CharacterData>, decltype(IsCharacterDataGreaterByOccurance)>
         priority_queue(IsCharacterDataGreaterByOccurance);
 
+    size_t id = 0;
     for (size_t i = 0; i < frequency_list.size(); ++i) {
         if (frequency_list[i] == 0) {
             continue;
         }
         priority_queue.push({.occurance_count = frequency_list[i],
-                             .node = new BinaryTree(static_cast<unsigned short>(i))});
+                             .node = new BinaryTree(static_cast<unsigned short>(i)),
+                             .id = id++});
     }
 
     if (priority_queue.empty()) {
@@ -116,12 +119,15 @@ BinaryTree* Archiver::GetBinaryTree(const FrequencyList& frequency_list) {
         auto parent = new BinaryTree();
         parent->SetLeftSon(left_son.node);
         parent->SetRightSon(right_son.node);
-        priority_queue.push({.occurance_count = left_son.occurance_count + right_son.occurance_count, .node = parent});
+        priority_queue.push({.occurance_count = left_son.occurance_count + right_son.occurance_count,
+                             .node = parent,
+                             .id = id++});
     }
 
     return priority_queue.top().node;
 }
 
+#include <iostream>
 Codebook Archiver::GetCodebook(const BinaryTree* tree_root) {
     if (!tree_root) {
         return {};
@@ -152,6 +158,7 @@ Codebook Archiver::GetCodebook(const BinaryTree* tree_root) {
             codebook.push_back({.character = value, .code = std::move(code)});
         }
     }
+
     return codebook;
 }
 

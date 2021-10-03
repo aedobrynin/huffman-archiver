@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "Compress.hpp"
+#include "Decompress.hpp"
 #include "Exceptions.hpp"
 
 const char* help_message =
@@ -49,7 +50,13 @@ int main(int argc, char* argv[]) {
             return 1;
         }
         std::string path(argv[2]);
-        return 0;
+        try {
+            Archiver::Decompress(path);
+            return 0;
+        } catch (const Archiver::ArchiverException& e) {
+            std::cout << e.what();
+            return 1;
+        }
     }
     std::cout << help_message;
     return 0;
