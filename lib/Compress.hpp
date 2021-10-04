@@ -6,11 +6,12 @@
 #include "OutputBitStream.hpp"
 
 namespace Archiver {
-void Compress(const std::string& archive_name, const std::vector<std::string>& files_to_archive);
+void Compress(const std::vector<InputStreamData>& streams_to_archive,
+              std::ostream& out);
 
-void CompressFile(const std::string& file_name, InputBitStream& in, OutputBitStream& out, bool is_last);
+void CompressFile(const std::string& stream_name, InputBitStream& in, OutputBitStream& out, bool is_last);
 
-FrequencyList GetFrequencyList(const std::string& filename,
+FrequencyList GetFrequencyList(const std::string& stream_name,
                                InputBitStream& ibitstream,
                                const std::vector<ControlCharacters>& additional_characters);
 

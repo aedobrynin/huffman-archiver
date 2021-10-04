@@ -1,5 +1,6 @@
 #include <cstring>
 #include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <vector>
 
@@ -24,16 +25,26 @@ int main(int argc, char* argv[]) {
             return 1;
         }
         std::string archive_name = argv[2];
-        std::vector<std::string> files_to_archive;
+        std::vector<std::ifstream> file_streams;
+        file_streams.resize(static_cast<size_t>(argc) - 3);
+        std::vector<Archiver::InputStreamData> files_to_archive;
         for (int i = 3; i < argc; ++i) {
-            files_to_archive.emplace_back(argv[i]);
+            std::string filename{argv[i]};
+            if (!std::filesystem::exists(filename)) {
+                std::cout << "File " << filename << " doesn't exist";
+                return 1;
+            }
+            file_streams.emplace_back(filename);
+            files_to_archive.push_back({.stream = dynamic_cast<std::istream&>(file_streams.back()),
+                                        .name = std::move(filename)});
         }
         if (files_to_archive.empty()) {
             std::cout << "Provide at least one file to archive.\n";
             return 1;
         }
         try {
-            Archiver::Compress(archive_name, files_to_archive);
+            std::ofstream out(archive_name);
+            Archiver::Compress(files_to_archive, out);
             std::cout << "Successful compress\n";
             return 0;
         } catch (const Archiver::ArchiverException& e) {

@@ -1,7 +1,5 @@
 #include "Compress.hpp"
 
-#include <filesystem>
-#include <fstream>
 #include <functional>
 #include <memory>
 #include <queue>
@@ -13,28 +11,20 @@
 
 using namespace Archiver;
 
-void Archiver::Compress(const std::string& archive_name, const std::vector<std::string>& files_to_archive) {
-    for (const auto& filename : files_to_archive) {
-        if (!std::filesystem::exists(filename)) {
-            throw FileNotFoundException(filename);
-        }
-    }
-
-    std::ofstream fout(archive_name);
-    OutputBitStream obitstream(fout);
-    for (size_t i = 0; i < files_to_archive.size(); ++i) {
-        std::ifstream fin(files_to_archive[i]);
-        InputBitStream ibitstream(fin);
-        CompressFile(files_to_archive[i], ibitstream, obitstream, i + 1 == files_to_archive.size());
+void Archiver::Compress(const std::vector<InputStreamData>& streams_to_archive, std::ostream& out) {
+    OutputBitStream obitstream(out);
+    for (size_t i = 0; i < streams_to_archive.size(); ++i) {
+        InputBitStream ibitstream(streams_to_archive[i].stream);
+        CompressFile(streams_to_archive[i].name, ibitstream, obitstream, i + 1 == streams_to_archive.size());
     }
 }
 
-void Archiver::CompressFile(const std::string& filename, InputBitStream& in, OutputBitStream& out, bool is_last) {
+void Archiver::CompressFile(const std::string& stream_name, InputBitStream& in, OutputBitStream& out, bool is_last) {
     std::vector<ControlCharacters> additional_characters{
         ControlCharacters::FILENAME_END,
         (is_last ? ControlCharacters::ARCHIVE_END : ControlCharacters::ONE_MORE_FILE),
     };
-    auto frequency_list = GetFrequencyList(filename, in, additional_characters);
+    auto frequency_list = GetFrequencyList(stream_name, in, additional_characters);
 
     std::unique_ptr<BinaryTree> binary_tree{GetBinaryTree(frequency_list)};
     auto codebook = GetCodebook(binary_tree.get());
@@ -53,23 +43,23 @@ void Archiver::CompressFile(const std::string& filename, InputBitStream& in, Out
         out.WriteBits(static_cast<unsigned short>(word_count), 9);
     }
 
-    std::stringstream sstream_filename(filename);
-    InputBitStream ibitstream_filename(sstream_filename);
-    Encode(ibitstream_filename, encoding_table, out, ControlCharacters::FILENAME_END);
+    std::stringstream sstream_stream_name(stream_name);
+    InputBitStream ibitstream_stream_name(sstream_stream_name);
+    Encode(ibitstream_stream_name, encoding_table, out, ControlCharacters::FILENAME_END);
 
     in.Reset();
     Encode(in, encoding_table, out, (is_last ? ControlCharacters::ARCHIVE_END : ControlCharacters::ONE_MORE_FILE));
 }
 
-FrequencyList Archiver::GetFrequencyList(const std::string& filename, InputBitStream& ibitstream,
+FrequencyList Archiver::GetFrequencyList(const std::string& stream_name, InputBitStream& ibitstream,
                                          const std::vector<ControlCharacters>& additional_characters) {
     FrequencyList frequency_list;
     frequency_list.fill(0);
 
-    std::stringstream filename_sstream(filename);
-    InputBitStream filename_ibitstream(filename_sstream);
-    while (filename_ibitstream.Good()) {
-        auto character = filename_ibitstream.ReadBits(8);
+    std::stringstream stream_name_sstream(stream_name);
+    InputBitStream stream_name_ibitstream(stream_name_sstream);
+    while (stream_name_ibitstream.Good()) {
+        auto character = stream_name_ibitstream.ReadBits(8);
         ++frequency_list[character];
     }
 

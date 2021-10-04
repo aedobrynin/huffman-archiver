@@ -2,6 +2,7 @@
 
 #include <array>
 #include <deque>
+#include <string>
 #include <unordered_map>
 #include <vector>
 
@@ -12,6 +13,11 @@ enum class ControlCharacters : unsigned short {
     ARCHIVE_END = 0b010000001,    // 258 in little-endian bits.
 };
 bool IsControlCharacter(unsigned short value);
+
+struct InputStreamData {
+    std::istream& stream;
+    std::string name;
+};
 
 using FrequencyList = std::array<size_t, 1 << 9>;
 
