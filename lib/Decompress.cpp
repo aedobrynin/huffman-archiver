@@ -28,8 +28,7 @@ StreamMeta Archiver::DecompressStreamMeta(InputBitStream& in) {
     }
 
     filename_obitstream.Flush();
-    std::string filename;
-    filename_sstream >> filename;
+    std::string filename = filename_sstream.str();
 
     return {.character_count = character_count,
             .name = std::move(filename),
