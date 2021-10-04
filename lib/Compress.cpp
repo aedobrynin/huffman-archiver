@@ -1,6 +1,5 @@
 #include "Compress.hpp"
 
-#include <functional>
 #include <memory>
 #include <queue>
 #include <sstream>

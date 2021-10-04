@@ -1,8 +1,7 @@
 #include "Decompress.hpp"
 
 #include <deque>
-#include <filesystem>
-#include <fstream>
+#include <sstream>
 
 #include "Exceptions.hpp"
 
