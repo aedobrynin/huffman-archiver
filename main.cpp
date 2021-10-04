@@ -62,12 +62,28 @@ int main(int argc, char* argv[]) {
             return 1;
         }
         std::string path(argv[2]);
+        std::vector<std::string> filenames;
         try {
-            Archiver::Decompress(path);
+            Archiver::ControlCharacters control_character;
+            std::ifstream fin(path);
+            Archiver::InputBitStream ibitstream(fin);
+
+            do {
+                auto stream_meta = Archiver::DecompressStreamMeta(ibitstream);
+                filenames.push_back(stream_meta.name);
+                std::ofstream fout(stream_meta.name);
+                Archiver::OutputBitStream obitstream(fout);
+                control_character =
+                    Archiver::DecompressStreamData(ibitstream, obitstream, stream_meta.binary_tree.get());
+            } while (control_character != Archiver::ControlCharacters::ARCHIVE_END);
+
             std::cout << "Successful decompress\n";
             return 0;
         } catch (const Archiver::ArchiverException& e) {
             std::cout << e.what() << '\n';
+            for (const auto& filename : filenames) {
+                std::filesystem::remove(filename);
+            }
             return 1;
         }
     }

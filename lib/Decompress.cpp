@@ -8,32 +8,7 @@
 
 using namespace Archiver;
 
-void Archiver::Decompress(const std::string& archive_name) {
-    if (!std::filesystem::exists(archive_name)) {
-        throw FileNotFoundException(archive_name);
-    }
-
-    std::ifstream fin(archive_name);
-    InputBitStream ibitstream(fin);
-
-    std::vector<std::string> decompressed_filenames;
-    while (ibitstream.Good()) {
-        try {
-            auto [filename, control_character] = DecompressFile(ibitstream);
-            decompressed_filenames.push_back(filename);
-            if (control_character == ControlCharacters::ARCHIVE_END) {
-                break;
-            }
-        } catch (const ArchiverException& e) {
-            for (auto filename : decompressed_filenames) {
-                std::filesystem::remove(filename);
-            }
-            throw;
-        }
-    }
-}
-
-std::pair<std::string, ControlCharacters> Archiver::DecompressFile(InputBitStream& in) {
+StreamMeta Archiver::DecompressStreamMeta(InputBitStream& in) {
     auto character_count = in.ReadBits(9);
     if (!in.IsLastReadSuccessful()) {
         throw BadFileStructureException("Can't read character count.");
@@ -56,18 +31,19 @@ std::pair<std::string, ControlCharacters> Archiver::DecompressFile(InputBitStrea
     filename_obitstream.Flush();
     std::string filename;
     filename_sstream >> filename;
-    std::ofstream fout(filename);
-    OutputBitStream file_obitstream(fout);
 
-    control_character = Extract(in, file_obitstream, binary_tree.get());
-    if (control_character != ControlCharacters::ONE_MORE_FILE
-     && control_character != ControlCharacters::ARCHIVE_END) {
+    return {.character_count = character_count,
+            .name = std::move(filename),
+            .binary_tree = std::move(binary_tree)};
+}
+
+ControlCharacters Archiver::DecompressStreamData(InputBitStream& in, OutputBitStream& out,
+                                                 const BinaryTree* binary_tree) {
+    auto control_character = Extract(in, out, binary_tree);
+    if (control_character != ControlCharacters::ONE_MORE_FILE && control_character != ControlCharacters::ARCHIVE_END) {
         throw BadFileStructureException("File/Archive end control character was expected, but got another.");
     }
-    file_obitstream.Flush();
-    fout.close();
-
-    return {filename, control_character};
+    return control_character;
 }
 
 CodebookData Archiver::DecompressCodebookData(InputBitStream& in, size_t character_count) {

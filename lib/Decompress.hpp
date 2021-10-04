@@ -9,9 +9,17 @@
 #include "OutputBitStream.hpp"
 
 namespace Archiver {
-void Decompress(const std::string& archive_name);
+void Decompress(std::ifstream& in);
 
-std::pair<std::string, ControlCharacters> DecompressFile(InputBitStream& in);  // Returns decompressed filename.
+struct StreamMeta {
+    size_t character_count;
+    std::string name;
+    std::unique_ptr<BinaryTree> binary_tree;
+};
+
+StreamMeta DecompressStreamMeta(InputBitStream& in);
+ControlCharacters DecompressStreamData(InputBitStream& in, OutputBitStream& out, const BinaryTree* binary_tree);
+
 CodebookData DecompressCodebookData(InputBitStream& in, size_t character_count);
 std::unique_ptr<BinaryTree> RestoreBinaryTree(const CodebookData& codebook_data);
 
