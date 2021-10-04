@@ -128,6 +128,7 @@ ControlCharacters Archiver::Extract(InputBitStream& in, OutputBitStream& out, co
         if (IsControlCharacter(value)) {
             return static_cast<ControlCharacters>(value);
         }
+        value >>= 1;
         out.WriteBits(value, 8);
     }
     throw BadFileStructureException("Stop character is expected, but EOF is reached.");

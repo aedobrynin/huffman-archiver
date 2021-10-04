@@ -59,11 +59,13 @@ FrequencyList Archiver::GetFrequencyList(const std::string& stream_name, InputBi
     InputBitStream stream_name_ibitstream(stream_name_sstream);
     while (stream_name_ibitstream.Good()) {
         auto character = stream_name_ibitstream.ReadBits(8);
+        character <<= 1;
         ++frequency_list[character];
     }
 
     while (ibitstream.Good()) {
         auto character = ibitstream.ReadBits(8);
+        character <<= 1;
         ++frequency_list[character];
     }
 
@@ -208,6 +210,7 @@ void Archiver::Encode(InputBitStream& in, const EncodingTable& encoding_table,
                       OutputBitStream& out, ControlCharacters last_character) {
     while (in.Good()) {
         auto character = in.ReadBits(8);
+        character <<= 1;
         out.WriteBits(encoding_table.at(character));
     }
     out.WriteBits(encoding_table.at(static_cast<unsigned short>(last_character)));
