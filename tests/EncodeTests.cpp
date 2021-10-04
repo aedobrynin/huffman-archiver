@@ -7,9 +7,9 @@
 using namespace Archiver;
 
 TEST(EncodeTests, CorrectEncode) {
-    EncodingTable encoding_table{{0b00000000, {1, 1, 0}},       // 0
-                                 {0b10000000, {0, 1}},          // 1
-                                 {0b01000000, {1, 0}},          // 2
+    EncodingTable encoding_table{{0b000000000, {1, 1, 0}},       // 0
+                                 {0b100000000, {0, 1}},          // 1
+                                 {0b010000000, {1, 0}},          // 2
                                  {0b000000001, {1, 1, 1, 1}}};  // ControlCharacters::FILENAME_END
 
     std::stringstream sstream_in;
