@@ -96,3 +96,19 @@ TEST(CompressDecompressTests, CorrectCompressDecompressManyStreams) {
         ASSERT_EQ(tests[i].content, decompressed_content.str()) << tests[i].description;
     }
 }
+
+TEST(CompressDecompressTests, CompressedSizeLessThanDecompressed) {
+    for (auto content_size : {100, 200, 300, 500, 1000, 5000, 10000, 30000, 60000}) {
+        std::string content = GenerateRandomString(static_cast<size_t>(content_size));
+        std::stringstream content_sstream{content};
+        InputStreamData input_stream_data{.stream = content_sstream, .name = ""};
+
+        std::stringstream compressed;
+        Archiver::Compress({input_stream_data}, compressed);
+
+        double before_compress_size = content_size;
+        double after_compress_size = static_cast<double>(compressed.str().size());
+
+        ASSERT_LE(after_compress_size, before_compress_size);
+    }
+}
