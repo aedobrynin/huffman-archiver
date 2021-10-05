@@ -83,7 +83,7 @@ TEST(CodebookTests, CorrectGetCodebookData) {
                           {.character = 1, .code = {1, 1, 0}},
                           {.character = 2, .code = {1, 1, 1}}};
         CodebookData expected{.word_count_by_bit_count = {1, 1, 2},
-                                   .characters = {256, 0, 1, 2}};
+                              .characters = {256, 0, 1, 2}};
         tests.push_back({.codebook = codebook, .expected = expected});
     }
 

@@ -35,8 +35,9 @@ StreamMeta Archiver::DecompressorImpl::DecompressStreamMeta(InputBitStream& in) 
             .binary_tree = std::move(binary_tree)};
 }
 
-ControlCharacters Archiver::DecompressorImpl::DecompressStreamData(InputBitStream& in, OutputBitStream& out,
-                                                 const BinaryTree* binary_tree) {
+ControlCharacters Archiver::DecompressorImpl::DecompressStreamData(InputBitStream& in,
+                                                                   OutputBitStream& out,
+                                                                   const BinaryTree* binary_tree) {
     auto control_character = Extract(in, out, binary_tree);
     if (control_character != ControlCharacters::ONE_MORE_FILE && control_character != ControlCharacters::ARCHIVE_END) {
         throw BadFileStructureException("File/Archive end control character was expected, but got another.");
@@ -105,7 +106,9 @@ std::unique_ptr<BinaryTree> Archiver::DecompressorImpl::RestoreBinaryTree(const 
     return binary_tree;
 }
 
-ControlCharacters Archiver::DecompressorImpl::Extract(InputBitStream& in, OutputBitStream& out, const BinaryTree* binary_tree) {
+ControlCharacters Archiver::DecompressorImpl::Extract(InputBitStream& in,
+                                                      OutputBitStream& out,
+                                                      const BinaryTree* binary_tree) {
     while (in.Good()) {
         const BinaryTree* cur = binary_tree;
         while (cur->GetValue() == BinaryTree::NO_VALUE) {

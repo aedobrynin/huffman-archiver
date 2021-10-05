@@ -18,7 +18,10 @@ void Archiver::CompressorImpl::Compress(const std::vector<InputStreamData>& stre
     }
 }
 
-void Archiver::CompressorImpl::CompressFile(const std::string& stream_name, InputBitStream& in, OutputBitStream& out, bool is_last) {
+void Archiver::CompressorImpl::CompressFile(const std::string& stream_name,
+                                            InputBitStream& in,
+                                            OutputBitStream& out,
+                                            bool is_last) {
     std::vector<ControlCharacters> additional_characters{
         ControlCharacters::FILENAME_END,
         (is_last ? ControlCharacters::ARCHIVE_END : ControlCharacters::ONE_MORE_FILE),
@@ -51,7 +54,7 @@ void Archiver::CompressorImpl::CompressFile(const std::string& stream_name, Inpu
 }
 
 FrequencyList Archiver::CompressorImpl::GetFrequencyList(const std::string& stream_name, InputBitStream& ibitstream,
-                                         const std::vector<ControlCharacters>& additional_characters) {
+                                                         const std::vector<ControlCharacters>& additional_characters) {
     FrequencyList frequency_list;
     frequency_list.fill(0);
 
@@ -207,7 +210,7 @@ EncodingTable Archiver::CompressorImpl::GetEncodingTable(Codebook codebook) {
 }
 
 void Archiver::CompressorImpl::Encode(InputBitStream& in, const EncodingTable& encoding_table,
-                      OutputBitStream& out, ControlCharacters last_character) {
+                                      OutputBitStream& out, ControlCharacters last_character) {
     while (in.Good()) {
         auto character = in.ReadBits(8);
         character <<= 1;

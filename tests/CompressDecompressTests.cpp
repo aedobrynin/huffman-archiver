@@ -16,12 +16,14 @@ struct TestData {
     std::string description = "";
 };
 
-std::string GenerateRandomString(size_t length) {
+std::string GenerateRandomString(size_t length,
+                                 char min_char = std::numeric_limits<char>::min(),
+                                 char max_char = std::numeric_limits<char>::max()) {
     std::string result;
     result.resize(length);
 
     std::mt19937 rng(200);
-    std::uniform_int_distribution<> distr(std::numeric_limits<char>::min(), std::numeric_limits<char>::max());
+    std::uniform_int_distribution<> distr(min_char, max_char);
     std::generate_n(result.begin(), length, [&distr, &rng]() { return distr(rng); });
 
     return result;
@@ -101,9 +103,10 @@ TEST(CompressDecompressTests, CorrectCompressDecompressManyStreams) {
     }
 }
 
+// Check compressed size on all ASCII characters.
 TEST(CompressDecompressTests, CompressedSizeLessThanDecompressed) {
-    for (auto content_size : {1000, 5000, 10000, 30000, 60000}) {
-        std::string content = GenerateRandomString(static_cast<size_t>(content_size));
+    for (auto content_size : {5000, 10000, 20000, 30000, 50000, 100000}) {
+        std::string content = GenerateRandomString(static_cast<size_t>(content_size), 0, 127);
         std::stringstream content_sstream{content};
         InputStreamData input_stream_data{.stream = content_sstream, .name = ""};
 
@@ -111,9 +114,8 @@ TEST(CompressDecompressTests, CompressedSizeLessThanDecompressed) {
         Compressor compressor;
         compressor.Compress({input_stream_data}, compressed);
 
-        double before_compress_size = content_size;
-        double after_compress_size = static_cast<double>(compressed.str().size());
-
+        auto before_compress_size = content_size;
+        auto after_compress_size = compressed.str().size();
         ASSERT_LE(after_compress_size, before_compress_size);
     }
 }
