@@ -3,7 +3,7 @@
 #include <sstream>
 #include <vector>
 
-#include "Compress.hpp"
+#include "CompressorImpl.hpp"
 
 using namespace Archiver;
 
@@ -23,5 +23,6 @@ TEST(FrequencyListTests, CorrectGetFrequencyList) {
     expected[0b110011000] = 1;   // '3'
     expected[0b000000001] = 1;  // ControlCharacters::FILENAME_END
 
-    ASSERT_EQ(expected, GetFrequencyList(filename, ibitstream, additional_characters));
+    CompressorImpl compressor_impl;
+    ASSERT_EQ(expected, compressor_impl.GetFrequencyList(filename, ibitstream, additional_characters));
 }

@@ -2,7 +2,7 @@
 
 #include <sstream>
 
-#include "Compress.hpp"
+#include "CompressorImpl.hpp"
 
 using namespace Archiver;
 
@@ -23,7 +23,8 @@ TEST(EncodeTests, CorrectEncode) {
 
     std::stringstream sstream_out;
     OutputBitStream out(sstream_out);
-    Encode(in, encoding_table, out, ControlCharacters::FILENAME_END);
+    CompressorImpl compressor_impl;
+    compressor_impl.Encode(in, encoding_table, out, ControlCharacters::FILENAME_END);
     out.Flush();
 
     std::vector<bool> expected{1, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1};

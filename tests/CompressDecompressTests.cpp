@@ -5,8 +5,8 @@
 #include <string>
 #include <vector>
 
-#include "Compress.hpp"
-#include "Decompress.hpp"
+#include "Compressor.hpp"
+#include "Decompressor.hpp"
 
 using namespace Archiver;
 
@@ -57,13 +57,15 @@ TEST(CompressDecompressTests, CorrectCompressDecompressStream) {
         InputStreamData input_stream_data{.stream = content_sstream, .name = filename};
 
         std::stringstream compressed;
-        Archiver::Compress({input_stream_data}, compressed);
+        Compressor compressor;
+        compressor.Compress({input_stream_data}, compressed);
 
         InputBitStream ibitstream(compressed);
-        auto stream_meta = Archiver::DecompressStreamMeta(ibitstream);
+        Decompressor decompressor;
+        auto stream_meta = decompressor.DecompressStreamMeta(ibitstream);
         std::stringstream decompressed_content;
         OutputBitStream obitstream(decompressed_content);
-        Archiver::DecompressStreamData(ibitstream, obitstream, stream_meta.binary_tree.get());
+        decompressor.DecompressStreamData(ibitstream, obitstream, stream_meta.binary_tree.get());
         obitstream.Flush();
 
         ASSERT_EQ(filename, stream_meta.name) << description;
@@ -82,14 +84,16 @@ TEST(CompressDecompressTests, CorrectCompressDecompressManyStreams) {
     }
 
     std::stringstream compressed;
-    Archiver::Compress(streams_to_archive, compressed);
+    Compressor compressor;
+    compressor.Compress(streams_to_archive, compressed);
 
     InputBitStream ibitstream(compressed);
+    Decompressor decompressor;
     for (size_t i = 0; i < tests.size(); ++i) {
-        auto stream_meta = Archiver::DecompressStreamMeta(ibitstream);
+        auto stream_meta = decompressor.DecompressStreamMeta(ibitstream);
         std::stringstream decompressed_content;
         OutputBitStream obitstream(decompressed_content);
-        Archiver::DecompressStreamData(ibitstream, obitstream, stream_meta.binary_tree.get());
+        decompressor.DecompressStreamData(ibitstream, obitstream, stream_meta.binary_tree.get());
         obitstream.Flush();
 
         ASSERT_EQ(tests[i].filename, stream_meta.name) << tests[i].description;
@@ -98,13 +102,14 @@ TEST(CompressDecompressTests, CorrectCompressDecompressManyStreams) {
 }
 
 TEST(CompressDecompressTests, CompressedSizeLessThanDecompressed) {
-    for (auto content_size : {100, 200, 300, 500, 1000, 5000, 10000, 30000, 60000}) {
+    for (auto content_size : {1000, 5000, 10000, 30000, 60000}) {
         std::string content = GenerateRandomString(static_cast<size_t>(content_size));
         std::stringstream content_sstream{content};
         InputStreamData input_stream_data{.stream = content_sstream, .name = ""};
 
         std::stringstream compressed;
-        Archiver::Compress({input_stream_data}, compressed);
+        Compressor compressor;
+        compressor.Compress({input_stream_data}, compressed);
 
         double before_compress_size = content_size;
         double after_compress_size = static_cast<double>(compressed.str().size());

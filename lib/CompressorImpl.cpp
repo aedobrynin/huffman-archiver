@@ -1,4 +1,4 @@
-#include "Compress.hpp"
+#include "CompressorImpl.hpp"
 
 #include <memory>
 #include <queue>
@@ -10,7 +10,7 @@
 
 using namespace Archiver;
 
-void Archiver::Compress(const std::vector<InputStreamData>& streams_to_archive, std::ostream& out) {
+void Archiver::CompressorImpl::Compress(const std::vector<InputStreamData>& streams_to_archive, std::ostream& out) {
     OutputBitStream obitstream(out);
     for (size_t i = 0; i < streams_to_archive.size(); ++i) {
         InputBitStream ibitstream(streams_to_archive[i].stream);
@@ -18,7 +18,7 @@ void Archiver::Compress(const std::vector<InputStreamData>& streams_to_archive, 
     }
 }
 
-void Archiver::CompressFile(const std::string& stream_name, InputBitStream& in, OutputBitStream& out, bool is_last) {
+void Archiver::CompressorImpl::CompressFile(const std::string& stream_name, InputBitStream& in, OutputBitStream& out, bool is_last) {
     std::vector<ControlCharacters> additional_characters{
         ControlCharacters::FILENAME_END,
         (is_last ? ControlCharacters::ARCHIVE_END : ControlCharacters::ONE_MORE_FILE),
@@ -50,7 +50,7 @@ void Archiver::CompressFile(const std::string& stream_name, InputBitStream& in, 
     Encode(in, encoding_table, out, (is_last ? ControlCharacters::ARCHIVE_END : ControlCharacters::ONE_MORE_FILE));
 }
 
-FrequencyList Archiver::GetFrequencyList(const std::string& stream_name, InputBitStream& ibitstream,
+FrequencyList Archiver::CompressorImpl::GetFrequencyList(const std::string& stream_name, InputBitStream& ibitstream,
                                          const std::vector<ControlCharacters>& additional_characters) {
     FrequencyList frequency_list;
     frequency_list.fill(0);
@@ -76,7 +76,7 @@ FrequencyList Archiver::GetFrequencyList(const std::string& stream_name, InputBi
     return frequency_list;
 }
 
-BinaryTree* Archiver::GetBinaryTree(const FrequencyList& frequency_list) {
+BinaryTree* Archiver::CompressorImpl::GetBinaryTree(const FrequencyList& frequency_list) {
     struct CharacterData {
         size_t occurance_count;
         BinaryTree* node;
@@ -117,7 +117,7 @@ BinaryTree* Archiver::GetBinaryTree(const FrequencyList& frequency_list) {
     return priority_queue.top().node;
 }
 
-Codebook Archiver::GetCodebook(const BinaryTree* tree_root) {
+Codebook Archiver::CompressorImpl::GetCodebook(const BinaryTree* tree_root) {
     if (!tree_root) {
         return {};
     }
@@ -150,7 +150,7 @@ Codebook Archiver::GetCodebook(const BinaryTree* tree_root) {
     return codebook;
 }
 
-void Archiver::CanonizeCodebook(Codebook& codebook) {
+void Archiver::CompressorImpl::CanonizeCodebook(Codebook& codebook) {
     std::sort(codebook.begin(), codebook.end(), [](const CodeWord& a, const CodeWord& b) {
         return std::forward_as_tuple(a.code.size(), a.character)
              < std::forward_as_tuple(b.code.size(), b.character);
@@ -182,7 +182,7 @@ void Archiver::CanonizeCodebook(Codebook& codebook) {
     }
 }
 
-CodebookData Archiver::GetCodebookData(Codebook codebook) {
+CodebookData Archiver::CompressorImpl::GetCodebookData(Codebook codebook) {
     if (codebook.empty()) {
         return {};
     }
@@ -198,7 +198,7 @@ CodebookData Archiver::GetCodebookData(Codebook codebook) {
     return codebook_data;
 }
 
-EncodingTable Archiver::GetEncodingTable(Codebook codebook) {
+EncodingTable Archiver::CompressorImpl::GetEncodingTable(Codebook codebook) {
     EncodingTable encoding_table;
     for (auto& code_word : codebook) {
         encoding_table[code_word.character] = std::move(code_word.code);
@@ -206,7 +206,7 @@ EncodingTable Archiver::GetEncodingTable(Codebook codebook) {
     return encoding_table;
 }
 
-void Archiver::Encode(InputBitStream& in, const EncodingTable& encoding_table,
+void Archiver::CompressorImpl::Encode(InputBitStream& in, const EncodingTable& encoding_table,
                       OutputBitStream& out, ControlCharacters last_character) {
     while (in.Good()) {
         auto character = in.ReadBits(8);

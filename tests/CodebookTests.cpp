@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "Compress.hpp"
+#include "CompressorImpl.hpp"
 
 using namespace Archiver;
 
@@ -50,7 +50,8 @@ TEST(CodebookTests, CorrectGetCodebook) {
                  < std::forward_as_tuple(b.character, b.code.size());
         };
         std::sort(test.expected.begin(), test.expected.end(), IsCodeWordLess);
-        auto result = GetCodebook(test.tree.get());
+        CompressorImpl compressor_impl;
+        auto result = compressor_impl.GetCodebook(test.tree.get());
         std::sort(result.begin(), result.end(), IsCodeWordLess);
         ASSERT_EQ(test.expected, result);
     }
@@ -88,7 +89,8 @@ TEST(CodebookTests, CorrectGetCodebookData) {
 
     ASSERT_FALSE(tests.empty());
 
+    CompressorImpl compressor_impl;
     for (const auto& test : tests) {
-        ASSERT_EQ(GetCodebookData(test.codebook), test.expected);
+        ASSERT_EQ(compressor_impl.GetCodebookData(test.codebook), test.expected);
     }
 }

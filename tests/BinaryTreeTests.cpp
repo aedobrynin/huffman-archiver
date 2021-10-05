@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "BinaryTree.hpp"
-#include "Compress.hpp"
+#include "CompressorImpl.hpp"
 
 using namespace Archiver;
 
@@ -69,8 +69,9 @@ TEST(BinaryTreeTests, CorrectGetBinaryTree) {
 
     ASSERT_FALSE(tests.empty());
 
+    CompressorImpl compressor_impl;
     for (const auto& test : tests) {
-        std::unique_ptr<BinaryTree> result(GetBinaryTree(test.frequency_list));
+        std::unique_ptr<BinaryTree> result(compressor_impl.GetBinaryTree(test.frequency_list));
         ASSERT_TRUE(AreTwoTreesEqual(test.expected.get(), result.get()));
     }
 }

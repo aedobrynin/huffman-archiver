@@ -1,4 +1,4 @@
-#include "Decompress.hpp"
+#include "DecompressorImpl.hpp"
 
 #include <deque>
 #include <sstream>
@@ -7,7 +7,7 @@
 
 using namespace Archiver;
 
-StreamMeta Archiver::DecompressStreamMeta(InputBitStream& in) {
+StreamMeta Archiver::DecompressorImpl::DecompressStreamMeta(InputBitStream& in) {
     auto character_count = in.ReadBits(9);
     if (!in.IsLastReadSuccessful()) {
         throw BadFileStructureException("Can't read character count.");
@@ -35,7 +35,7 @@ StreamMeta Archiver::DecompressStreamMeta(InputBitStream& in) {
             .binary_tree = std::move(binary_tree)};
 }
 
-ControlCharacters Archiver::DecompressStreamData(InputBitStream& in, OutputBitStream& out,
+ControlCharacters Archiver::DecompressorImpl::DecompressStreamData(InputBitStream& in, OutputBitStream& out,
                                                  const BinaryTree* binary_tree) {
     auto control_character = Extract(in, out, binary_tree);
     if (control_character != ControlCharacters::ONE_MORE_FILE && control_character != ControlCharacters::ARCHIVE_END) {
@@ -44,7 +44,7 @@ ControlCharacters Archiver::DecompressStreamData(InputBitStream& in, OutputBitSt
     return control_character;
 }
 
-CodebookData Archiver::DecompressCodebookData(InputBitStream& in, size_t character_count) {
+CodebookData Archiver::DecompressorImpl::DecompressCodebookData(InputBitStream& in, size_t character_count) {
     CodebookData codebook_data;
     for (size_t i = 0; i < character_count; ++i) {
         auto character = in.ReadBits(9);
@@ -66,7 +66,7 @@ CodebookData Archiver::DecompressCodebookData(InputBitStream& in, size_t charact
     return codebook_data;
 }
 
-std::unique_ptr<BinaryTree> Archiver::RestoreBinaryTree(const CodebookData& codebook_data) {
+std::unique_ptr<BinaryTree> Archiver::DecompressorImpl::RestoreBinaryTree(const CodebookData& codebook_data) {
     std::unique_ptr<BinaryTree> binary_tree{new BinaryTree()};
 
     auto cur_bit_count_it = codebook_data.word_count_by_bit_count.begin();
@@ -105,7 +105,7 @@ std::unique_ptr<BinaryTree> Archiver::RestoreBinaryTree(const CodebookData& code
     return binary_tree;
 }
 
-ControlCharacters Archiver::Extract(InputBitStream& in, OutputBitStream& out, const BinaryTree* binary_tree) {
+ControlCharacters Archiver::DecompressorImpl::Extract(InputBitStream& in, OutputBitStream& out, const BinaryTree* binary_tree) {
     while (in.Good()) {
         const BinaryTree* cur = binary_tree;
         while (cur->GetValue() == BinaryTree::NO_VALUE) {

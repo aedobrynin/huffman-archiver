@@ -11,10 +11,14 @@ set(SRCS
     OutputBitStream.cpp
     BinaryTree.hpp
     BinaryTree.cpp
-    Compress.hpp
-    Compress.cpp
-    Decompress.hpp
-    Decompress.cpp
+    CompressorImpl.hpp
+    CompressorImpl.cpp
+    DecompressorImpl.hpp
+    DecompressorImpl.cpp
+    Compressor.hpp
+    Compressor.cpp
+    Decompressor.hpp
+    Decompressor.cpp
     Exceptions.hpp
 )
 

@@ -4,8 +4,8 @@
 #include <iostream>
 #include <vector>
 
-#include "Compress.hpp"
-#include "Decompress.hpp"
+#include "Compressor.hpp"
+#include "Decompressor.hpp"
 #include "Exceptions.hpp"
 
 const char* help_message =
@@ -44,7 +44,8 @@ int main(int argc, char* argv[]) {
         }
         try {
             std::ofstream out(archive_name);
-            Archiver::Compress(files_to_archive, out);
+            Archiver::Compressor compressor;
+            compressor.Compress(files_to_archive, out);
             std::cout << "Successful compress\n";
             return 0;
         } catch (const Archiver::ArchiverException& e) {
@@ -67,14 +68,16 @@ int main(int argc, char* argv[]) {
             Archiver::ControlCharacters control_character;
             std::ifstream fin(path);
             Archiver::InputBitStream ibitstream(fin);
+            Archiver::Decompressor decompressor;
 
             do {
-                auto stream_meta = Archiver::DecompressStreamMeta(ibitstream);
+                auto stream_meta = decompressor.DecompressStreamMeta(ibitstream);
                 filenames.push_back(stream_meta.name);
                 std::ofstream fout(stream_meta.name);
                 Archiver::OutputBitStream obitstream(fout);
-                control_character =
-                    Archiver::DecompressStreamData(ibitstream, obitstream, stream_meta.binary_tree.get());
+                control_character = decompressor.DecompressStreamData(ibitstream,
+                                                                      obitstream,
+                                                                      stream_meta.binary_tree.get());
             } while (control_character != Archiver::ControlCharacters::ARCHIVE_END);
 
             std::cout << "Successful decompress\n";
