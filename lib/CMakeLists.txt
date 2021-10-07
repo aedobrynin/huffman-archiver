@@ -20,6 +20,7 @@ set(SRCS
     Decompressor.hpp
     Decompressor.cpp
     Exceptions.hpp
+    PriorityQueue.hpp
 )
 
 add_library(ArchiverLibrary STATIC ${SRCS})

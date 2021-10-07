@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "Exceptions.hpp"
+#include "PriorityQueue.hpp"
 
 using namespace Archiver;
 
@@ -89,7 +90,7 @@ BinaryTree* Archiver::CompressorImpl::GetBinaryTree(const FrequencyList& frequen
         return a.occurance_count > b.occurance_count;
     };
 
-    std::priority_queue<CharacterData, std::vector<CharacterData>, decltype(IsCharacterDataGreaterByOccurance)>
+    PriorityQueue<CharacterData, decltype(IsCharacterDataGreaterByOccurance)>
         priority_queue(IsCharacterDataGreaterByOccurance);
 
     for (size_t i = 0; i < frequency_list.size(); ++i) {

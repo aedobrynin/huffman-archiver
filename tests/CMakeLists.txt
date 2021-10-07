@@ -18,5 +18,6 @@ add_executable(Run_tests
                CodebookTests.cpp
                EncodeTests.cpp
                CompressDecompressTests.cpp
+               PriorityQueueTests.cpp
                )
 target_link_libraries(Run_tests ArchiverLibrary gtest gtest_main)
