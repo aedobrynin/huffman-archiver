@@ -212,10 +212,23 @@ EncodingTable Archiver::CompressorImpl::GetEncodingTable(Codebook codebook) {
 
 void Archiver::CompressorImpl::Encode(InputBitStream& in, const EncodingTable& encoding_table,
                                       OutputBitStream& out, ControlCharacters last_character) {
+    std::unordered_map<unsigned short, std::pair<unsigned short, unsigned short>> encoding_table_tweak;
+    for (auto& [character, code] : encoding_table) {
+        unsigned short code_tweak = 0;
+        for (size_t i = 0; i < code.size(); ++i) {
+            code_tweak |= (code[i] << (code.size() - 1 - i));
+        }
+        encoding_table_tweak[character] = {code_tweak, code.size()};
+    }
+
     while (in.Good()) {
         auto character = in.ReadBits(8);
         character <<= 1;
-        out.WriteBits(encoding_table.at(character));
+
+        auto it = encoding_table_tweak.find(character);
+        out.WriteBits(it->second.first, it->second.second);
     }
-    out.WriteBits(encoding_table.at(static_cast<unsigned short>(last_character)));
+
+    auto it = encoding_table_tweak.find(static_cast<unsigned short>(last_character));
+    out.WriteBits(it->second.first, it->second.second);
 }
