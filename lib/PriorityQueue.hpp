@@ -36,7 +36,7 @@ public:
     }
 
     void pop() {
-        data_[0] = data_.back();
+        std::swap(data_[0], data_.back());
         data_.pop_back();
         sift_down(0);
     }
