@@ -2,7 +2,7 @@
 
 Huffman Archiver is an archiver that uses [Huffman coding](https://en.wikipedia.org/wiki/Huffman_coding) to compress data.
 
-It's written in C++20. Build is successful with Clang 12.
+It's written in C++20 (Uses std::filesystem from C++17 and designated initializers from C++20). Build is successful with Clang 12.
 
 ## Build
 You need `cmake` and `make` installed if you want to build the project.
