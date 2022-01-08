@@ -68,8 +68,6 @@ private:
 
 private:
     std::vector<T> data_;
-    size_t size_;
-
     Compare comp_;
 };
 }  // namespace Archiver
