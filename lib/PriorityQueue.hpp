@@ -36,7 +36,7 @@ public:
     }
 
     void pop() {
-        data_[0] = data_.back();
+        std::swap(data_[0], data_.back());
         data_.pop_back();
         sift_down(0);
     }
@@ -68,8 +68,6 @@ private:
 
 private:
     std::vector<T> data_;
-    size_t size_;
-
     Compare comp_;
 };
 }  // namespace Archiver
