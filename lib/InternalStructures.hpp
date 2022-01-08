@@ -42,5 +42,16 @@ struct CodebookData {
     }
 };
 
-using EncodingTable = std::unordered_map<unsigned short, std::vector<bool>>;
+
+struct CodeWordMeta {
+    unsigned short code;
+    unsigned short code_size;
+
+    bool operator==(const CodeWordMeta& other) const {
+        return code == other.code && code_size == other.code_size;
+    }
+};
+
+
+using EncodingTable = std::unordered_map<unsigned short, CodeWordMeta>;
 }  // namespace Archiver

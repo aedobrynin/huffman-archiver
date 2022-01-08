@@ -7,10 +7,10 @@
 using namespace Archiver;
 
 TEST(EncodeTests, CorrectEncode) {
-    EncodingTable encoding_table{{0b000000000, {1, 1, 0}},      // 0
-                                 {0b100000000, {0, 1}},         // 1
-                                 {0b010000000, {1, 0}},         // 2
-                                 {0b000000001, {1, 1, 1, 1}}};  // ControlCharacters::FILENAME_END
+    EncodingTable encoding_table{{0b000000000, {.code = 0b110, .code_size = 3}},      // 0
+                                 {0b100000000, {.code = 0b01, .code_size = 2}},         // 1
+                                 {0b010000000, {.code = 0b10, .code_size = 2}},         // 2
+                                 {0b000000001, {.code = 0b1111, .code_size = 4}}};  // ControlCharacters::FILENAME_END
 
     std::stringstream sstream_in;
     sstream_in << static_cast<unsigned char>(0);

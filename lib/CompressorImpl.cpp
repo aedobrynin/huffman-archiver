@@ -205,30 +205,26 @@ CodebookData Archiver::CompressorImpl::GetCodebookData(Codebook codebook) {
 EncodingTable Archiver::CompressorImpl::GetEncodingTable(Codebook codebook) {
     EncodingTable encoding_table;
     for (auto& code_word : codebook) {
-        encoding_table[code_word.character] = std::move(code_word.code);
+        unsigned short code_as_int = 0;
+        for (size_t i = 0; i < code_word.code.size(); ++i) {
+            code_as_int |= (code_word.code[i] << (code_word.code.size() - 1 - i));
+        }
+        encoding_table[code_word.character] =
+            CodeWordMeta{.code = code_as_int, .code_size = static_cast<unsigned short>(code_word.code.size())};
     }
     return encoding_table;
 }
 
 void Archiver::CompressorImpl::Encode(InputBitStream& in, const EncodingTable& encoding_table,
                                       OutputBitStream& out, ControlCharacters last_character) {
-    std::unordered_map<unsigned short, std::pair<unsigned short, unsigned short>> encoding_table_tweak;
-    for (auto& [character, code] : encoding_table) {
-        unsigned short code_tweak = 0;
-        for (size_t i = 0; i < code.size(); ++i) {
-            code_tweak |= (code[i] << (code.size() - 1 - i));
-        }
-        encoding_table_tweak[character] = {code_tweak, code.size()};
-    }
-
     while (in.Good()) {
         auto character = in.ReadBits(8);
         character <<= 1;
 
-        auto it = encoding_table_tweak.find(character);
-        out.WriteBits(it->second.first, it->second.second);
+        auto it = encoding_table.find(character);
+        out.WriteBits(it->second.code, it->second.code_size);
     }
 
-    auto it = encoding_table_tweak.find(static_cast<unsigned short>(last_character));
-    out.WriteBits(it->second.first, it->second.second);
+    auto it = encoding_table.find(static_cast<unsigned short>(last_character));
+    out.WriteBits(it->second.code, it->second.code_size);
 }
